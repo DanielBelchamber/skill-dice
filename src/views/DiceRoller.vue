@@ -1,11 +1,24 @@
 <script setup lang="ts">
+import { useDicePool } from '@/stores/dicePool';
+
+const pool = useDicePool();
+
+const assembleDicePool = () => {
+  // TODO
+};
 </script>
 
 <template>
   <main>
     <h1>Skill Dice</h1>
 
-    <div class="dice-selector"></div>
+    <div class="selection-wrapper">
+      <div class="dice-selector"></div>
+
+      <div class="pool-preview"></div>
+
+      <button @click="assembleDicePool" :disabled="!pool.isAssembled">Assemble Dice Pool</button>
+    </div>
   </main>
 </template>
 
@@ -22,8 +35,17 @@ h1 {
   text-align: center;
 }
 
+.selection-wrapper {
+  width: 600px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
 .dice-selector {
-  height: 200px;
+  height: 100px;
   width: auto;
   display: flex;
   align-items: center;
