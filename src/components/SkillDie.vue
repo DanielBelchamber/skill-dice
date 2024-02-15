@@ -35,8 +35,8 @@ const fillColor = computed(() => {
 
 <template>
   <svg class="SkillDie" :width="size" :height="size" viewBox="0 0 100 100">
+    <!-- Die Types -->
     <rect v-if="dieType === 'Master'" x="14" y="14" width="72" height="72" :fill="fillColor" />
-
     <g v-if="dieType === 'Expert'">
       <!-- background -->
       <polygon points="10,25 50,5 90,25 90,75 50,95 10,75" :fill="fillColor" />
@@ -47,7 +47,6 @@ const fillColor = computed(() => {
       <!-- hint cover -->
       <circle cx="50" cy="50" r="32" :fill="fillColor" />
     </g>
-
     <g v-if="dieType === 'Adept'">
       <!-- background -->
       <polygon
@@ -62,7 +61,6 @@ const fillColor = computed(() => {
       <!-- hint cover -->
       <circle cx="50" cy="50" r="35" :fill="fillColor" />
     </g>
-
     <g v-if="dieType === 'Novice'">
       <!-- background -->
       <polygon points="6.7,25 50,0 93.3,25 93.3,75 50,100 6.7,75" :fill="fillColor" />
@@ -81,5 +79,14 @@ const fillColor = computed(() => {
       <!-- hint cover -->
       <circle cx="50" cy="50" r="38" :fill="fillColor" />
     </g>
+
+    <!-- Roll Values -->
+    <rect v-if="rollValue === 1 || rollValue === 2" x="30" y="45" width="40" height="10" rx="3" fill="white" />
+    <rect v-if="rollValue === 2" x="45" y="30" width="10" height="40" rx="3" fill="white" />
+    <polygon v-if="rollValue === 3" points="50,33 32.68,63 67.32,63" stroke-width="6" stroke="white"
+      stroke-linejoin="round" fill="white" />
+    <rect v-if="rollValue === 4" x="30" y="30" width="40" height="40" rx="3" fill="white" />
+    <polygon v-if="rollValue === 5" points="50,30 61.76,66.18 30.98,43.82 69.02,43.82 38.24,66.18" stroke-width="6"
+      stroke="white" stroke-linejoin="round" fill="white" />
   </svg>
 </template>
