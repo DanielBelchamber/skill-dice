@@ -10,7 +10,7 @@ const props = defineProps({
   },
   dieType: {
     type: String as PropType<SkillDieType>,
-    required: true,
+    required: false,
   },
   rollValue: {
     type: Number as PropType<SkillDieValue>,

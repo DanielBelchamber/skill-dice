@@ -42,7 +42,7 @@ const NoviceDie: SkillDie = {
   faceCount: 20
 }
 
-type SkillDieRoll = {
+export type SkillDieRoll = {
   type: SkillDieType
   value: SkillDieValue
 }
@@ -58,7 +58,7 @@ const rollDie = (type: SkillDieType, faceCount: number): SkillDieRoll => {
 export const useDicePool = defineStore('Dice Pool', () => {
   const pool = ref<SkillDie[]>([])
   const typeOptions = ref<SkillDieType[]>(['Novice', 'Adept', 'Expert', 'Master'])
-  const isAssembled = computed(() => pool.value.length === 5)
+  const canAssemble = computed(() => pool.value.length === 5)
   const assembledTypes = computed(() => pool.value.map((die) => die.type))
 
   const addDie = (dieType: SkillDieType) => {
@@ -85,7 +85,7 @@ export const useDicePool = defineStore('Dice Pool', () => {
   const roll = () => pool.value.map((die) => rollDie(die.type, die.faceCount))
 
   return {
-    isAssembled,
+    canAssemble,
     typeOptions,
     assembledTypes,
     addDie,
