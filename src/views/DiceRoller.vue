@@ -1,12 +1,19 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 
-import { useDicePool, type SkillDieRoll } from '@/stores/dicePool'
+import { useAppStore } from '@/stores/app'
+import { nextRank } from '@/composables/skill'
+import { type SkillDieRoll } from '@/composables/dicePool'
 import SkillDie from '@/components/SkillDie.vue'
 
-const pool = useDicePool()
+const appStore = useAppStore()
 
-const isAssembled = ref(false)
+const pool = computed(() => {
+  const rank = appStore.skill.rank
+  const stripe = appStore.skill.stripe
+  return [...Array(5)].map((_, index) => (index < stripe) ? nextRank(rank) : rank)
+})
+
 const rollResult = ref<SkillDieRoll[] | null>(null)
 const totalResult = computed(() => {
   if (!rollResult.value) return 0
@@ -21,53 +28,17 @@ const shapes = computed(() => {
     .reverse()
 })
 
-const assembleDicePool = () => (isAssembled.value = true)
-
 const rollDicePool = () => {
-  rollResult.value = pool.roll()
+  rollResult.value = appStore.skill.roll()
 }
 </script>
 
 <template>
   <main>
-    <h1 class="page-title">Skill Dice</h1>
-
-    <div v-if="!isAssembled" class="selection-wrapper">
-      <div class="dice-selector">
-        <SkillDie
-          v-for="dieType in pool.typeOptions"
-          :key="dieType"
-          :die-type="dieType"
-          @click="() => pool.addDie(dieType)"
-        />
-      </div>
-
-      <div class="pool-preview">
-        <h2 class="preview-title">Select Five</h2>
-
-        <SkillDie
-          v-for="(dieType, index) in pool.assembledTypes"
-          :key="index"
-          :die-type="dieType"
-          :size="50"
-          @click="() => pool.removeDie(index)"
-        />
-      </div>
-
-      <button @click="assembleDicePool" :disabled="!pool.canAssemble">Assemble Dice Pool</button>
-    </div>
-
-    <div v-else class="roller-interface">
-      <h2 class="preview-title">Assembled Pool</h2>
-
+    <div class="roller-interface">
       <div class="dice-pool">
-        <SkillDie
-          v-for="(dieType, index) in pool.assembledTypes"
-          :key="index"
-          :die-type="dieType"
-          :roll-value="rollResult ? rollResult[index].value : undefined"
-          :size="150"
-        />
+        <SkillDie v-for="(rank, index) in pool" :key="index" :die-rank="rank"
+          :roll-value="rollResult ? rollResult[index].value : undefined" :size="150" />
       </div>
 
       <button @click="rollDicePool">Roll</button>
@@ -86,50 +57,6 @@ const rollDicePool = () => {
 main {
   width: 100%;
   height: 100%;
-}
-
-.page-title {
-  margin: 3rem 0;
-  font-size: 3rem;
-  font-weight: 600;
-  text-align: center;
-}
-
-.selection-wrapper {
-  width: 600px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.selection-wrapper .SkillDie {
-  cursor: pointer;
-}
-
-.dice-selector {
-  height: 100px;
-  width: auto;
-  margin: 0 0 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-}
-
-.pool-preview {
-  width: calc(5 * 50px + 4 * 10px);
-  height: 100px;
-  margin-bottom: 2rem;
-}
-
-.preview-title {
-  margin-bottom: 0.5rem;
-}
-
-.pool-preview .SkillDie:not(:last-child) {
-  margin-right: 10px;
 }
 
 .roller-interface {
