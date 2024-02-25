@@ -84,6 +84,9 @@ const useSkill = (proficiency?: SkillProficiency) => {
   const display = computed<SkillDieRank[]>(() => dice.value.map((die) => die.rank))
   const pool = computed<SkillDicePool>(() => useDicePool(dice.value))
 
+  const setRank = (newRank: SkillDieRank) => (rank.value = newRank)
+  const setStripe = (newStripe: SkillStripe) => (stripe.value = newStripe)
+
   const roll = (): SkillRoll => {
     const display = pool.value.roll()
     const total = display.reduce((sum, die) => sum + die.value, 0)
@@ -92,7 +95,7 @@ const useSkill = (proficiency?: SkillProficiency) => {
     return { display, total, shapes }
   }
 
-  return { rank, stripe, display, roll }
+  return { rank, stripe, display, setRank, setStripe, roll }
 }
 
-export { type SkillRoll, type SkillShape, useSkill }
+export { type SkillRoll, type SkillShape, type SkillStripe, useSkill }
