@@ -1,11 +1,12 @@
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 import {
   createSkillDie,
   useDicePool,
-  type SkillDicePool,
   type SkillDieRank,
-  type SkillDieRoll
+  type SkillDieRoll,
+  type SkillDie,
+  type SkillDicePool
 } from '@/composables/dicePool'
 import type { ObjectValues } from '@/generic.types'
 
@@ -37,12 +38,11 @@ const nextRank = (rank: SkillDieRank): SkillDieRank => {
   }
 }
 
-const createSkillDicePool = (proficiency: SkillProficiency): SkillDicePool => {
+const assembleSkillDice = (proficiency: SkillProficiency): SkillDie[] => {
   const { rank, stripe } = proficiency
-  const dice = [...Array(5)].map((_, index) =>
+  return [...Array(5)].map((_, index) =>
     index < stripe ? createSkillDie(nextRank(rank)) : createSkillDie(rank)
   )
-  return useDicePool(dice)
 }
 
 type SkillRoll = {
@@ -74,9 +74,15 @@ const deriveShapes = (display: SkillDieRoll[]): SkillShape[] => {
 }
 
 const useSkill = (proficiency?: SkillProficiency) => {
+  // default rank and stripe if necessary
   const rank = ref<SkillDieRank>(proficiency?.rank ?? 'Novice')
   const stripe = ref<SkillStripe>(proficiency?.stripe ?? 0)
-  const pool = ref<SkillDicePool>(createSkillDicePool({ rank: rank.value, stripe: stripe.value }))
+  // derive display and pool from rank and stripe
+  const dice = computed<SkillDie[]>(() =>
+    assembleSkillDice({ rank: rank.value, stripe: stripe.value })
+  )
+  const display = computed<SkillDieRank[]>(() => dice.value.map((die) => die.rank))
+  const pool = computed<SkillDicePool>(() => useDicePool(dice.value))
 
   const roll = (): SkillRoll => {
     const display = pool.value.roll()
@@ -86,7 +92,7 @@ const useSkill = (proficiency?: SkillProficiency) => {
     return { display, total, shapes }
   }
 
-  return { rank, stripe, roll }
+  return { rank, stripe, display, roll }
 }
 
-export { type SkillRoll, nextRank, useSkill }
+export { type SkillRoll, type SkillShape, useSkill }

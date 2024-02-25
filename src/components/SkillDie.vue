@@ -2,6 +2,7 @@
 import { computed, type PropType } from 'vue'
 
 import type { SkillDieRank, SkillDieValue } from '@/composables/dicePool';
+import type { SkillShape } from '@/composables/skill';
 
 const props = defineProps({
   size: {
@@ -14,6 +15,10 @@ const props = defineProps({
   },
   rollValue: {
     type: Number as PropType<SkillDieValue>,
+    required: false
+  },
+  shape: {
+    type: String as PropType<SkillShape>,
     required: false
   }
 })
@@ -83,10 +88,10 @@ const fillColor = computed(() => {
     <!-- Roll Values -->
     <rect v-if="rollValue === 1 || rollValue === 2" x="30" y="45" width="40" height="10" rx="3" fill="white" />
     <rect v-if="rollValue === 2" x="45" y="30" width="10" height="40" rx="3" fill="white" />
-    <polygon v-if="rollValue === 3" points="50,33 32.68,63 67.32,63" stroke-width="6" stroke="white"
-      stroke-linejoin="round" fill="white" />
-    <rect v-if="rollValue === 4" x="30" y="30" width="40" height="40" rx="3" fill="white" />
-    <polygon v-if="rollValue === 5" points="50,30 61.76,66.18 30.98,43.82 69.02,43.82 38.24,66.18" stroke-width="6"
+    <polygon v-if="rollValue === 3 || shape === 'Triangle'" points="50,33 32.68,63 67.32,63" stroke-width="6"
       stroke="white" stroke-linejoin="round" fill="white" />
+    <rect v-if="rollValue === 4 || shape === 'Square'" x="30" y="30" width="40" height="40" rx="3" fill="white" />
+    <polygon v-if="rollValue === 5 || shape === 'Star'" points="50,30 61.76,66.18 30.98,43.82 69.02,43.82 38.24,66.18"
+      stroke-width="6" stroke="white" stroke-linejoin="round" fill="white" />
   </svg>
 </template>

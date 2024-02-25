@@ -16,27 +16,27 @@ const VALUE_PYRAMID = [
 ] as SkillDieValue[]
 
 type SkillDie = {
-  type: SkillDieRank
+  rank: SkillDieRank
   faceCount: number
 }
 
 const MASTER_DIE: SkillDie = {
-  type: SKILL_DIE_TYPE.MASTER,
+  rank: SKILL_DIE_TYPE.MASTER,
   faceCount: 6
 }
 
 const EXPERT_DIE: SkillDie = {
-  type: SKILL_DIE_TYPE.EXPERT,
+  rank: SKILL_DIE_TYPE.EXPERT,
   faceCount: 8
 }
 
 const ADEPT_DIE: SkillDie = {
-  type: SKILL_DIE_TYPE.ADEPT,
+  rank: SKILL_DIE_TYPE.ADEPT,
   faceCount: 12
 }
 
 const NOVICE_DIE: SkillDie = {
-  type: SKILL_DIE_TYPE.NOVICE,
+  rank: SKILL_DIE_TYPE.NOVICE,
   faceCount: 20
 }
 
@@ -71,13 +71,14 @@ type SkillDicePool = {
 }
 
 const useDicePool = (dice: SkillDie[]): SkillDicePool => {
-  const roll = (): SkillDieRoll[] => dice.map((die) => rollDie(die.type, die.faceCount))
+  const roll = (): SkillDieRoll[] => dice.map((die) => rollDie(die.rank, die.faceCount))
 
   return { roll }
 }
 
 export {
   type SkillDicePool,
+  type SkillDie,
   type SkillDieRoll,
   type SkillDieRank,
   type SkillDieValue,

@@ -2,36 +2,14 @@
 import { computed, ref } from 'vue'
 
 import { useAppStore } from '@/stores/app'
-import { type SkillRoll, nextRank } from '@/composables/skill'
-import type { SkillDieValue } from '@/composables/dicePool'
+import { type SkillRoll } from '@/composables/skill'
 import SkillDie from '@/components/SkillDie.vue'
 
 const appStore = useAppStore()
 
-const pool = computed(() => {
-  const rank = appStore.skill.rank
-  const stripe = appStore.skill.stripe
-  return [...Array(5)].map((_, index) => (index < stripe) ? nextRank(rank) : rank)
-})
+const dicePoolDisplay = computed(() => appStore.skill.display)
 
 const rollResult = ref<SkillRoll | null>(null)
-const shapeValues = computed<SkillDieValue[]>(() => {
-  if (!rollResult.value) return []
-
-  const shapes = rollResult.value.shapes
-  return shapes.map((shape) => {
-    switch (shape) {
-      case 'Star':
-        return 5
-      case 'Square':
-        return 4
-      case 'Triangle':
-        return 3
-      default:
-        return 0
-    }
-  })
-})
 
 const rollDicePool = () => {
   rollResult.value = appStore.skill.roll()
@@ -39,20 +17,18 @@ const rollDicePool = () => {
 </script>
 
 <template>
-  <main>
-    <div class="roller-interface">
-      <div class="dice-pool">
-        <SkillDie v-for="(rank, index) in pool" :key="index" :die-rank="rank"
-          :roll-value="rollResult ? rollResult.display[index].value : undefined" :size="150" />
-      </div>
+  <main class="DiceRoller">
+    <div class="dice-pool">
+      <SkillDie v-for="(rank, index) in dicePoolDisplay" :key="index" :die-rank="rank"
+        :roll-value="rollResult ? rollResult.display[index].value : undefined" :size="150" />
+    </div>
 
-      <button @click="rollDicePool">Roll</button>
+    <button @click="rollDicePool">Roll</button>
 
-      <div v-if="rollResult" class="result-display">
-        <h2>Total: {{ rollResult.total }}</h2>
-        <div v-if="shapeValues.length > 0" class="shapes">
-          <SkillDie v-for="(value, index) in shapeValues" :key="index" :roll-value="value" :size="50" />
-        </div>
+    <div v-if="rollResult" class="result-display">
+      <h2>Total: {{ rollResult.total }}</h2>
+      <div v-if="rollResult.shapes.length > 0" class="shapes">
+        <SkillDie v-for="(shape, index) in rollResult.shapes" :key="index" :shape="shape" :size="50" />
       </div>
     </div>
   </main>
@@ -64,12 +40,11 @@ main {
   height: 100%;
 }
 
-.roller-interface {
+.DiceRoller {
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
 }
 
 .dice-pool {
