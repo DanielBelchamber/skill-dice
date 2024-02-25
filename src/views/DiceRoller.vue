@@ -79,6 +79,7 @@ main {
 }
 
 .skill-selector {
+  margin-top: 1rem;
   display: flex;
   align-items: center;
 }
