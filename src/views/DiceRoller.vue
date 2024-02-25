@@ -1,82 +1,65 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 
-import { useDicePool, type SkillDieRoll } from '@/stores/dicePool'
+import { useAppStore } from '@/stores/app'
+import { type SkillRoll, type SkillStripe } from '@/composables/skill'
+import type { SkillDieRank } from '@/composables/dicePool';
 import SkillDie from '@/components/SkillDie.vue'
 
-const pool = useDicePool()
+const appStore = useAppStore()
 
-const isAssembled = ref(false)
-const rollResult = ref<SkillDieRoll[] | null>(null)
-const totalResult = computed(() => {
-  if (!rollResult.value) return 0
-  return rollResult.value.reduce((sum, roll) => sum + roll.value, 0)
-})
-const shapes = computed(() => {
-  if (!rollResult.value) return []
-  return rollResult.value
-    .map((roll) => roll.value)
-    .filter((value) => value >= 3)
-    .sort()
-    .reverse()
-})
+const dicePoolDisplay = computed(() => appStore.skill.display)
 
-const assembleDicePool = () => (isAssembled.value = true)
+const RANK_OPTIONS: SkillDieRank[] = ['Novice', 'Adept', 'Expert', 'Master']
+const STRIPE_OPTIONS: SkillStripe[] = [0, 1, 2, 3, 4]
+
+const rank = ref<SkillDieRank>('Novice')
+const stripe = ref<SkillStripe>(0)
+const rollResult = ref<SkillRoll | null>(null)
+
+watch([rank, stripe], () => {
+  rollResult.value = null
+  appStore.skill.setRank(rank.value)
+  if (rank.value === 'Master') {
+    stripe.value = 0
+  }
+  appStore.skill.setStripe(stripe.value)
+})
 
 const rollDicePool = () => {
-  rollResult.value = pool.roll()
+  rollResult.value = appStore.skill.roll()
 }
 </script>
 
 <template>
-  <main>
-    <h1 class="page-title">Skill Dice</h1>
-
-    <div v-if="!isAssembled" class="selection-wrapper">
-      <div class="dice-selector">
-        <SkillDie
-          v-for="dieType in pool.typeOptions"
-          :key="dieType"
-          :die-type="dieType"
-          @click="() => pool.addDie(dieType)"
-        />
+  <main class="DiceRoller">
+    <div class="skill-selector">
+      <div class="select-wrapper">
+        <label for="rank-select">Rank</label>
+        <select id="rank-select" v-model="rank">
+          <option v-for="option in RANK_OPTIONS" :key="option" :value="option">{{ option }}</option>
+        </select>
       </div>
 
-      <div class="pool-preview">
-        <h2 class="preview-title">Select Five</h2>
-
-        <SkillDie
-          v-for="(dieType, index) in pool.assembledTypes"
-          :key="index"
-          :die-type="dieType"
-          :size="50"
-          @click="() => pool.removeDie(index)"
-        />
+      <div class="select-wrapper">
+        <label for="stripe-select">Stripe</label>
+        <select id="stripe-select" v-model="stripe" :disabled="rank === 'Master'">
+          <option v-for="option in STRIPE_OPTIONS" :key="option" :value="option">{{ option }}</option>
+        </select>
       </div>
-
-      <button @click="assembleDicePool" :disabled="!pool.canAssemble">Assemble Dice Pool</button>
     </div>
 
-    <div v-else class="roller-interface">
-      <h2 class="preview-title">Assembled Pool</h2>
+    <div class="dice-pool">
+      <SkillDie v-for="(rank, index) in dicePoolDisplay" :key="index" :die-rank="rank"
+        :roll-value="rollResult ? rollResult.display[index].value : undefined" :size="150" />
+    </div>
 
-      <div class="dice-pool">
-        <SkillDie
-          v-for="(dieType, index) in pool.assembledTypes"
-          :key="index"
-          :die-type="dieType"
-          :roll-value="rollResult ? rollResult[index].value : undefined"
-          :size="150"
-        />
-      </div>
+    <button @click="rollDicePool">Roll</button>
 
-      <button @click="rollDicePool">Roll</button>
-
-      <div v-if="rollResult" class="result-display">
-        <h2>Total: {{ totalResult }}</h2>
-        <div v-if="shapes.length > 0" class="shapes">
-          <SkillDie v-for="(shape, index) in shapes" :key="index" :roll-value="shape" :size="50" />
-        </div>
+    <div v-if="rollResult" class="result-display">
+      <h2>Total: {{ rollResult.total }}</h2>
+      <div v-if="rollResult.shapes.length > 0" class="shapes">
+        <SkillDie v-for="(shape, index) in rollResult.shapes" :key="index" :shape="shape" :size="50" />
       </div>
     </div>
   </main>
@@ -88,56 +71,23 @@ main {
   height: 100%;
 }
 
-.page-title {
-  margin: 3rem 0;
-  font-size: 3rem;
-  font-weight: 600;
-  text-align: center;
-}
-
-.selection-wrapper {
-  width: 600px;
+.DiceRoller {
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
 }
 
-.selection-wrapper .SkillDie {
-  cursor: pointer;
-}
-
-.dice-selector {
-  height: 100px;
-  width: auto;
-  margin: 0 0 2rem;
+.skill-selector {
+  margin-top: 1rem;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 1rem;
 }
 
-.pool-preview {
-  width: calc(5 * 50px + 4 * 10px);
-  height: 100px;
-  margin-bottom: 2rem;
-}
-
-.preview-title {
-  margin-bottom: 0.5rem;
-}
-
-.pool-preview .SkillDie:not(:last-child) {
-  margin-right: 10px;
-}
-
-.roller-interface {
-  margin: 0 auto;
+.select-wrapper {
+  margin: 0 1rem;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
 }
 
 .dice-pool {
