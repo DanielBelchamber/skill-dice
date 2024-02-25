@@ -1,4 +1,4 @@
-import { computed, ref } from 'vue'
+import { computed, ref, type ComputedRef, type Ref } from 'vue'
 
 import {
   createSkillDie,
@@ -73,7 +73,16 @@ const deriveShapes = (display: SkillDieRoll[]): SkillShape[] => {
   return shapeValues.map((v) => convertToShape(v))
 }
 
-const useSkill = (proficiency?: SkillProficiency) => {
+type Skill = {
+  rank: Ref<SkillDieRank>
+  stripe: Ref<SkillStripe>
+  display: ComputedRef<SkillDieRank[]>
+  setRank: (newRank: SkillDieRank) => void
+  setStripe: (newStripe: SkillStripe) => void
+  roll: () => SkillRoll
+}
+
+const useSkill = (proficiency?: SkillProficiency): Skill => {
   // default rank and stripe if necessary
   const rank = ref<SkillDieRank>(proficiency?.rank ?? 'Novice')
   const stripe = ref<SkillStripe>(proficiency?.stripe ?? 0)
@@ -98,4 +107,4 @@ const useSkill = (proficiency?: SkillProficiency) => {
   return { rank, stripe, display, setRank, setStripe, roll }
 }
 
-export { type SkillRoll, type SkillShape, type SkillStripe, useSkill }
+export { type Skill, type SkillRoll, type SkillShape, type SkillStripe, useSkill }

@@ -1,21 +1,29 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 
-import { useAppStore } from '@/stores/app'
+import { type AppMode, useAppStore } from '@/stores/app'
 import { type SkillRoll, type SkillStripe } from '@/composables/skill'
 import type { SkillDieRank } from '@/composables/dicePool';
 import SkillDie from '@/components/SkillDie.vue'
+
+const MODE_OPTIONS: AppMode[] = ['Custom Roller', 'Idle Skilling']
+const RANK_OPTIONS: SkillDieRank[] = ['Novice', 'Adept', 'Expert', 'Master']
+const STRIPE_OPTIONS: SkillStripe[] = [0, 1, 2, 3, 4]
 
 const appStore = useAppStore()
 
 const dicePoolDisplay = computed(() => appStore.skill.display)
 
-const RANK_OPTIONS: SkillDieRank[] = ['Novice', 'Adept', 'Expert', 'Master']
-const STRIPE_OPTIONS: SkillStripe[] = [0, 1, 2, 3, 4]
-
+const mode = ref<AppMode>('Custom Roller')
 const rank = ref<SkillDieRank>('Novice')
 const stripe = ref<SkillStripe>(0)
 const rollResult = ref<SkillRoll | null>(null)
+
+watch(mode, () => {
+  appStore.setMode(mode.value)
+  rank.value = 'Novice'
+  stripe.value = 0
+})
 
 watch([rank, stripe], () => {
   rollResult.value = null
@@ -35,15 +43,22 @@ const rollDicePool = () => {
   <main class="DiceRoller">
     <div class="skill-selector">
       <div class="select-wrapper">
+        <label for="mode-select">Mode</label>
+        <select id="mode-select" v-model="mode">
+          <option v-for="option in MODE_OPTIONS" :key="option" :value="option">{{ option }}</option>
+        </select>
+      </div>
+
+      <div class="select-wrapper">
         <label for="rank-select">Rank</label>
-        <select id="rank-select" v-model="rank">
+        <select id="rank-select" v-model="rank" :disabled="mode === 'Idle Skilling'">
           <option v-for="option in RANK_OPTIONS" :key="option" :value="option">{{ option }}</option>
         </select>
       </div>
 
       <div class="select-wrapper">
         <label for="stripe-select">Stripe</label>
-        <select id="stripe-select" v-model="stripe" :disabled="rank === 'Master'">
+        <select id="stripe-select" v-model="stripe" :disabled="mode === 'Idle Skilling' || rank === 'Master'">
           <option v-for="option in STRIPE_OPTIONS" :key="option" :value="option">{{ option }}</option>
         </select>
       </div>
