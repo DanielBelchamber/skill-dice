@@ -35,6 +35,9 @@ onMounted(() => {
       } else {
         progress.value += INTERVAL
       }
+      if (props.pause) {
+        clearInterval(intervalId)
+      }
     }, INTERVAL)
   }
 })

@@ -75,11 +75,11 @@ const deriveShapes = (display: SkillDieRoll[]): SkillShape[] => {
 const getThreshold = (rank: SkillDieRank): number => {
   switch (rank) {
     case 'Novice':
-      return 100
+      return 25 // 100
     case 'Adept':
-      return 500
+      return 100 // 500
     case 'Expert':
-      return 2500
+      return 400 // 2500
     case 'Master':
       return Infinity
   }
@@ -119,7 +119,7 @@ const useSkill = (): Skill => {
   // default rank and stripe if necessary
   const rank = ref<SkillDieRank>('Novice')
   const stripe = ref<SkillStripe>(0)
-  const experience = ref<SkillExperience>({ progress: 0, threshold: 100 })
+  const experience = ref<SkillExperience>({ progress: 0, threshold: getThreshold(rank.value) })
   // derive display and pool from rank and stripe
   const dice = computed<SkillDie[]>(() =>
     assembleSkillDice({ rank: rank.value, stripe: stripe.value })

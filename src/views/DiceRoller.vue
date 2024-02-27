@@ -24,15 +24,18 @@ const dicePoolDisplay = computed(() =>
 )
 
 // Idle Skilling
-const interval = computed(() => appStore.interval)
+const rollCount = ref(0)
+const interval = computed(() => appStore.interval / 4)
 const modifier = computed(() => appStore.modifier)
 const challenge = computed(() => appStore.challenge)
 const idleResult = ref<IdleResult | null>(null)
+const pause = computed(() => appStore.skill.rank === 'Master')
 
 const rollSkillCheck = () => {
   const result = appStore.rollSkillCheck()
   rollResult.value = result.rollResult
   idleResult.value = result.idleResult
+  rollCount.value++
 }
 
 watch(mode, () => {
@@ -107,11 +110,12 @@ const rollDicePool = () => {
       <p>Rank: {{ skill.rank }}</p>
       <p>Stripe: {{ skill.stripe }}</p>
       <p>Experience: {{ skill.experience.progress }} / {{ skill.experience.threshold }}</p>
+      <p>Roll Count: {{ rollCount }}</p>
     </div>
 
     <div v-if="mode === 'Idle Skilling'" class="skill-check">
       <p>Next Skill Check: {{ challenge }}</p>
-      <ProgressBar :interval="interval" :color="getColor(skill.rank)" @reset="rollSkillCheck" />
+      <ProgressBar :interval="interval" :pause="pause" :color="getColor(skill.rank)" @reset="rollSkillCheck" />
       <p class="details">
         <span v-if="modifier > 0">Modifier: +{{ modifier }}</span>
         <span class="interval">{{ interval }} seconds</span>
@@ -133,6 +137,8 @@ const rollDicePool = () => {
       <p>Experience earned: {{ idleResult.success ? idleResult.challenge : 0 }} + {{ idleResult.shapes.length }} = {{
         (idleResult.success ? idleResult.challenge : 0) + idleResult.shapes.length }}</p>
     </div>
+
+    <h2 v-if="mode === 'Idle Skilling' && pause">You have mastered the skill!</h2>
   </main>
 </template>
 
