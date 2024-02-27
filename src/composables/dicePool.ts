@@ -1,13 +1,13 @@
 import type { ObjectValues } from '@/generic.types'
 
-const SKILL_DIE_TYPE = {
+const SKILL_DIE_RANK = {
   MASTER: 'Master',
   EXPERT: 'Expert',
   ADEPT: 'Adept',
   NOVICE: 'Novice'
 } as const
 
-type SkillDieRank = ObjectValues<typeof SKILL_DIE_TYPE>
+type SkillDieRank = ObjectValues<typeof SKILL_DIE_RANK>
 
 type SkillDieValue = 0 | 1 | 2 | 3 | 4 | 5
 
@@ -21,22 +21,22 @@ type SkillDie = {
 }
 
 const MASTER_DIE: SkillDie = {
-  rank: SKILL_DIE_TYPE.MASTER,
+  rank: SKILL_DIE_RANK.MASTER,
   faceCount: 6
 }
 
 const EXPERT_DIE: SkillDie = {
-  rank: SKILL_DIE_TYPE.EXPERT,
+  rank: SKILL_DIE_RANK.EXPERT,
   faceCount: 8
 }
 
 const ADEPT_DIE: SkillDie = {
-  rank: SKILL_DIE_TYPE.ADEPT,
+  rank: SKILL_DIE_RANK.ADEPT,
   faceCount: 12
 }
 
 const NOVICE_DIE: SkillDie = {
-  rank: SKILL_DIE_TYPE.NOVICE,
+  rank: SKILL_DIE_RANK.NOVICE,
   faceCount: 20
 }
 
@@ -56,13 +56,13 @@ const getColor = (rank: SkillDieRank): string => {
 
 const createSkillDie = (type: SkillDieRank): SkillDie => {
   switch (type) {
-    case SKILL_DIE_TYPE.MASTER:
+    case SKILL_DIE_RANK.MASTER:
       return { ...MASTER_DIE }
-    case SKILL_DIE_TYPE.EXPERT:
+    case SKILL_DIE_RANK.EXPERT:
       return { ...EXPERT_DIE }
-    case SKILL_DIE_TYPE.ADEPT:
+    case SKILL_DIE_RANK.ADEPT:
       return { ...ADEPT_DIE }
-    case SKILL_DIE_TYPE.NOVICE:
+    case SKILL_DIE_RANK.NOVICE:
       return { ...NOVICE_DIE }
   }
 }

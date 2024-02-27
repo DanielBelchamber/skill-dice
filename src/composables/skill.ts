@@ -72,6 +72,19 @@ const deriveShapes = (display: SkillDieRoll[]): SkillShape[] => {
   return shapeValues.map((v) => convertToShape(v))
 }
 
+const getThreshold = (rank: SkillDieRank): number => {
+  switch (rank) {
+    case 'Novice':
+      return 100
+    case 'Adept':
+      return 500
+    case 'Expert':
+      return 2500
+    case 'Master':
+      return Infinity
+  }
+}
+
 type SkillRoll = {
   rollDisplay: SkillDieRoll[]
   total: number
@@ -118,7 +131,14 @@ const useSkill = (): Skill => {
   const setStripe = (newStripe: SkillStripe) => (stripe.value = newStripe)
 
   const improve = () => {
-    // TODO
+    experience.value.progress = experience.value.progress - experience.value.threshold
+    if (stripe.value < 4) {
+      stripe.value += 1
+    } else if (rank.value !== 'Master') {
+      rank.value = nextRank(rank.value)
+      stripe.value = 0
+      experience.value.threshold = getThreshold(rank.value)
+    }
   }
 
   const addExperience = (amount: number): void => {

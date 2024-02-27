@@ -126,7 +126,8 @@ const rollDicePool = () => {
         <span>{{ idleResult.success ? '>=' : '<' }}&nbsp;</span>
             <span>{{ idleResult.challenge }}</span>
       </h2>
-      <div v-if="rollResult.shapes.length > 0" class="shapes" :style="{ 'background-color': getColor(skill.rank) }">
+      <div v-if="rollResult.shapes.length > 0" class="shapes"
+        :style="{ 'background-color': getColor(rollResult.rollDisplay[4].rank) }">
         <SkillDie v-for="(shape, index) in rollResult.shapes" :key="index" :shape="shape" :size="50" />
       </div>
       <p>Experience earned: {{ idleResult.success ? idleResult.challenge : 0 }} + {{ idleResult.shapes.length }} = {{
