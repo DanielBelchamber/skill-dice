@@ -54,14 +54,14 @@ const createSkillDie = (type: SkillDieRank): SkillDie => {
 }
 
 type SkillDieRoll = {
-  type: SkillDieRank
+  rank: SkillDieRank
   value: SkillDieValue
 }
 
 const rollDie = (type: SkillDieRank, faceCount: number): SkillDieRoll => {
   const values = VALUE_PYRAMID.slice(0, faceCount)
   return {
-    type: type,
+    rank: type,
     value: values[Math.floor(Math.random() * faceCount)]
   }
 }

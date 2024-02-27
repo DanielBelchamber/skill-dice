@@ -12,17 +12,27 @@ const STRIPE_OPTIONS: SkillStripe[] = [0, 1, 2, 3, 4]
 
 const appStore = useAppStore()
 
-const dicePoolDisplay = computed(() => appStore.skill.display)
-
 const mode = ref<AppMode>('Custom Roller')
 const rank = ref<SkillDieRank>('Novice')
 const stripe = ref<SkillStripe>(0)
 const rollResult = ref<SkillRoll | null>(null)
 
+const skill = computed(() => appStore.skill)
+const dicePoolDisplay = computed(() =>
+  rollResult.value ? rollResult.value.rollDisplay.map((d) => d.rank) : appStore.skill.poolDisplay
+)
+
 watch(mode, () => {
   appStore.setMode(mode.value)
-  rank.value = 'Novice'
-  stripe.value = 0
+  rollResult.value = null
+  if (mode.value === 'Custom Roller') {
+    rank.value = appStore.skill.rank
+    stripe.value = appStore.skill.stripe
+  }
+  if (mode.value === 'Idle Skilling') {
+    appStore.skill.setRank('Novice')
+    appStore.skill.setStripe(0)
+  }
 })
 
 watch([rank, stripe], () => {
@@ -49,16 +59,16 @@ const rollDicePool = () => {
         </select>
       </div>
 
-      <div class="select-wrapper">
+      <div v-if="mode === 'Custom Roller'" class="select-wrapper">
         <label for="rank-select">Rank</label>
-        <select id="rank-select" v-model="rank" :disabled="mode === 'Idle Skilling'">
+        <select id="rank-select" v-model="rank">
           <option v-for="option in RANK_OPTIONS" :key="option" :value="option">{{ option }}</option>
         </select>
       </div>
 
-      <div class="select-wrapper">
+      <div v-if="mode === 'Custom Roller'" class="select-wrapper">
         <label for="stripe-select">Stripe</label>
-        <select id="stripe-select" v-model="stripe" :disabled="mode === 'Idle Skilling' || rank === 'Master'">
+        <select id="stripe-select" v-model="stripe" :disabled="rank === 'Master'">
           <option v-for="option in STRIPE_OPTIONS" :key="option" :value="option">{{ option }}</option>
         </select>
       </div>
@@ -66,10 +76,16 @@ const rollDicePool = () => {
 
     <div class="dice-pool">
       <SkillDie v-for="(rank, index) in dicePoolDisplay" :key="index" :die-rank="rank"
-        :roll-value="rollResult ? rollResult.display[index].value : undefined" :size="150" />
+        :roll-value="rollResult ? rollResult.rollDisplay[index].value : undefined" :size="150" />
     </div>
 
-    <button @click="rollDicePool">Roll</button>
+    <button v-if="mode === 'Custom Roller'" @click="rollDicePool">Roll</button>
+
+    <div v-if="mode === 'Idle Skilling'" class="skill-stats">
+      <p>Rank: {{ skill.rank }}</p>
+      <p>Stripe: {{ skill.stripe }}</p>
+      <p>Experience: {{ skill.experience.progress }} / {{ skill.experience.threshold }}</p>
+    </div>
 
     <div v-if="rollResult" class="result-display">
       <h2>Total: {{ rollResult.total }}</h2>
