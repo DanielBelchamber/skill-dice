@@ -2,9 +2,10 @@
 import { computed, ref, watch } from 'vue'
 
 import { type AppMode, useAppStore } from '@/stores/app'
-import { type SkillRoll, type SkillStripe } from '@/composables/skill'
-import type { SkillDieRank } from '@/composables/dicePool';
+import { type IdleResult, type SkillRoll, type SkillStripe } from '@/composables/skill'
+import { getColor, type SkillDieRank } from '@/composables/dicePool';
 import SkillDie from '@/components/SkillDie.vue'
+import ProgressBar from '@/components/ProgressBar.vue';
 
 const MODE_OPTIONS: AppMode[] = ['Custom Roller', 'Idle Skilling']
 const RANK_OPTIONS: SkillDieRank[] = ['Novice', 'Adept', 'Expert', 'Master']
@@ -21,6 +22,18 @@ const skill = computed(() => appStore.skill)
 const dicePoolDisplay = computed(() =>
   rollResult.value ? rollResult.value.rollDisplay.map((d) => d.rank) : appStore.skill.poolDisplay
 )
+
+// Idle Skilling
+const interval = computed(() => appStore.interval)
+const modifier = computed(() => appStore.modifier)
+const challenge = computed(() => appStore.challenge)
+const idleResult = ref<IdleResult | null>(null)
+
+const rollSkillCheck = () => {
+  const result = appStore.rollSkillCheck()
+  rollResult.value = result.rollResult
+  idleResult.value = result.idleResult
+}
 
 watch(mode, () => {
   appStore.setMode(mode.value)
@@ -79,19 +92,45 @@ const rollDicePool = () => {
         :roll-value="rollResult ? rollResult.rollDisplay[index].value : undefined" :size="150" />
     </div>
 
+    <!-- Custom Roller -->
     <button v-if="mode === 'Custom Roller'" @click="rollDicePool">Roll</button>
 
+    <div v-if="rollResult && mode === 'Custom Roller'" class="result-display">
+      <h2>Total: {{ rollResult.total }}</h2>
+      <div v-if="rollResult.shapes.length > 0" class="shapes" :style="{ 'background-color': getColor(skill.rank) }">
+        <SkillDie v-for="(shape, index) in rollResult.shapes" :key="index" :shape="shape" :size="50" />
+      </div>
+    </div>
+
+    <!-- Idle Skilling -->
     <div v-if="mode === 'Idle Skilling'" class="skill-stats">
       <p>Rank: {{ skill.rank }}</p>
       <p>Stripe: {{ skill.stripe }}</p>
       <p>Experience: {{ skill.experience.progress }} / {{ skill.experience.threshold }}</p>
     </div>
 
-    <div v-if="rollResult" class="result-display">
-      <h2>Total: {{ rollResult.total }}</h2>
-      <div v-if="rollResult.shapes.length > 0" class="shapes">
+    <div v-if="mode === 'Idle Skilling'" class="skill-check">
+      <p>Next Skill Check: {{ challenge }}</p>
+      <ProgressBar :interval="interval" :color="getColor(skill.rank)" @reset="rollSkillCheck" />
+      <p class="details">
+        <span v-if="modifier > 0">Modifier: +{{ modifier }}</span>
+        <span class="interval">{{ interval }} seconds</span>
+      </p>
+    </div>
+
+    <div v-if="rollResult && idleResult" class="result-display">
+      <h2 :class="idleResult.success ? 'success' : 'failure'">
+        <span>{{ idleResult.success ? 'Success!' : 'Failure:' }}&nbsp;</span>
+        <span>{{ rollResult.total }}&nbsp;</span>
+        <span v-if="idleResult.modifier">+&nbsp;{{ idleResult.modifier }}&nbsp;</span>
+        <span>{{ idleResult.success ? '>=' : '<' }}&nbsp;</span>
+            <span>{{ idleResult.challenge }}</span>
+      </h2>
+      <div v-if="rollResult.shapes.length > 0" class="shapes" :style="{ 'background-color': getColor(skill.rank) }">
         <SkillDie v-for="(shape, index) in rollResult.shapes" :key="index" :shape="shape" :size="50" />
       </div>
+      <p>Experience earned: {{ idleResult.success ? idleResult.challenge : 0 }} + {{ idleResult.shapes.length }} = {{
+        (idleResult.success ? idleResult.challenge : 0) + idleResult.shapes.length }}</p>
     </div>
   </main>
 </template>
@@ -125,12 +164,32 @@ main {
   margin: 2rem 0;
 }
 
+.skill-check {
+  margin: 2rem 0 0;
+}
+
+.skill-check .details {
+  display: flex;
+}
+
+.skill-check .details .interval {
+  margin-left: auto;
+}
+
 .result-display {
-  margin: 2rem auto;
+  margin: 1rem auto;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+}
+
+.result-display .success {
+  color: green;
+}
+
+.result-display .failure {
+  color: red;
 }
 
 .shapes {

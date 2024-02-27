@@ -78,10 +78,16 @@ type SkillRoll = {
   shapes: SkillShape[]
 }
 
-type SkillCheckResult = {
+type IdleResult = {
+  challenge: number
   modifier: number
-  rollResult: SkillRoll
   success: boolean
+  shapes: SkillShape[]
+}
+
+type SkillCheckResult = {
+  rollResult: SkillRoll
+  idleResult: IdleResult
 }
 
 type Skill = {
@@ -91,6 +97,7 @@ type Skill = {
   poolDisplay: ComputedRef<SkillDieRank[]>
   setRank: (newRank: SkillDieRank) => void
   setStripe: (newStripe: SkillStripe) => void
+  addExperience: (amount: number) => void
   roll: () => SkillRoll
   check: (target: number, modifier?: number) => SkillCheckResult
 }
@@ -110,6 +117,17 @@ const useSkill = (): Skill => {
   const setRank = (newRank: SkillDieRank) => (rank.value = newRank)
   const setStripe = (newStripe: SkillStripe) => (stripe.value = newStripe)
 
+  const improve = () => {
+    // TODO
+  }
+
+  const addExperience = (amount: number): void => {
+    experience.value.progress += amount
+    if (experience.value.progress >= experience.value.threshold) {
+      improve()
+    }
+  }
+
   const roll = (): SkillRoll => {
     const rollDisplay = pool.value.roll()
     const total = rollDisplay.reduce((sum, die) => sum + die.value, 0)
@@ -120,12 +138,35 @@ const useSkill = (): Skill => {
 
   const check = (target: number, modifier = 0): SkillCheckResult => {
     const rollResult = roll()
-    const success = rollResult.total + modifier >= target
+    const idleResult = {
+      challenge: target,
+      modifier,
+      success: rollResult.total + modifier >= target,
+      shapes: rollResult.shapes
+    }
 
-    return { modifier, rollResult, success }
+    return { rollResult, idleResult }
   }
 
-  return { rank, stripe, experience, poolDisplay, setRank, setStripe, roll, check }
+  return {
+    rank,
+    stripe,
+    experience,
+    poolDisplay,
+    setRank,
+    setStripe,
+    addExperience,
+    roll,
+    check
+  }
 }
 
-export { type Skill, type SkillRoll, type SkillShape, type SkillStripe, useSkill }
+export {
+  type IdleResult,
+  type Skill,
+  type SkillCheckResult,
+  type SkillRoll,
+  type SkillShape,
+  type SkillStripe,
+  useSkill
+}

@@ -40,6 +40,20 @@ const NOVICE_DIE: SkillDie = {
   faceCount: 20
 }
 
+const getColor = (rank: SkillDieRank): string => {
+  switch (rank) {
+    case 'Master':
+      return '#6A1B9A'
+    case 'Expert':
+      return '#1565C0'
+    case 'Adept':
+      return '#2E7D32'
+    case 'Novice':
+    default:
+      return '#616161'
+  }
+}
+
 const createSkillDie = (type: SkillDieRank): SkillDie => {
   switch (type) {
     case SKILL_DIE_TYPE.MASTER:
@@ -82,6 +96,7 @@ export {
   type SkillDieRoll,
   type SkillDieRank,
   type SkillDieValue,
+  getColor,
   createSkillDie,
   useDicePool
 }
