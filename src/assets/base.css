@@ -1,0 +1,63 @@
+:root {
+  /* Tabletop Vibe */
+  --paper_light: #f4eee4ff;
+  --paper_dark: #eee3d2ff;
+  --red_accent: #7a2c00ff;
+  --wood_light: #764429ff;
+  --wood_dark: #58341fff;
+
+  /* Dice Colors */
+  --master: #6a1b9aff;
+  --expert: #1565c0ff;
+  --apprentice: #2e7d32ff;
+  --novice: #616161ff;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  font-weight: normal;
+}
+
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+html,
+body {
+  height: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  line-height: 1.6;
+  font-family: sans-serif;
+  font-size: 16px;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1 {
+  font-size: 3rem;
+  font-weight: 700;
+}
+
+h2 {
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+h3 {
+  font-size: 1.5rem;
+  font-weight: 500;
+}
+
+button {
+  cursor: pointer;
+}
