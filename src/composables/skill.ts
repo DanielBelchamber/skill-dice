@@ -31,9 +31,9 @@ const nextRank = (rank: SkillDieRank): SkillDieRank => {
 
 const assembleSkillDice = (proficiency: SkillProficiency): SkillDie[] => {
   const { rank, stripe } = proficiency
-  return [...Array(5)].map((_, index) =>
-    index < stripe ? createSkillDie(nextRank(rank)) : createSkillDie(rank)
-  )
+  return [...Array(5)]
+    .map((_, index) => (index < stripe ? createSkillDie(nextRank(rank)) : createSkillDie(rank)))
+    .reverse()
 }
 
 type RollDisplay = {
@@ -121,4 +121,12 @@ const useSkill = (): Skill => {
   }
 }
 
-export { type RollDisplay, type Skill, type SkillCheck, type SkillRoll, type SkillStripe, useSkill }
+export {
+  type RollDisplay,
+  type Skill,
+  type SkillCheck,
+  type SkillProficiency,
+  type SkillRoll,
+  type SkillStripe,
+  useSkill
+}

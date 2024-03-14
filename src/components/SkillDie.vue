@@ -1,24 +1,23 @@
 <script setup lang="ts">
 import { type PropType } from 'vue'
 
-import type { SkillDieRank, SkillDieValue } from '@/composables/dicePool';
-import type { SkillShape } from '@/composables/skill';
+import type { SkillDieRank, SkillDieShape, SkillDieValue } from '@/composables/dicePool';
 
 defineProps({
   size: {
     type: Number,
     default: 100
   },
-  dieRank: {
+  rank: {
     type: String as PropType<SkillDieRank>,
     required: false
   },
-  rollValue: {
+  value: {
     type: Number as PropType<SkillDieValue>,
     required: false
   },
   shape: {
-    type: String as PropType<SkillShape>,
+    type: String as PropType<SkillDieShape>,
     required: false
   }
 })
@@ -27,8 +26,8 @@ defineProps({
 <template>
   <svg class="SkillDie" :width="size" :height="size" viewBox="0 0 100 100">
     <!-- Rank Die -->
-    <rect v-if="dieRank === 'Master'" class="master-fill" x="14" y="14" width="72" height="72" />
-    <g v-if="dieRank === 'Expert'">
+    <rect v-if="rank === 'Master'" class="master-fill" x="14" y="14" width="72" height="72" />
+    <g v-if="rank === 'Expert'">
       <!-- background -->
       <polygon class="expert-fill" points="10,25 50,5 90,25 90,75 50,95 10,75" />
       <!-- line hints -->
@@ -38,7 +37,7 @@ defineProps({
       <!-- hint cover -->
       <circle class="expert-fill" cx="50" cy="50" r="32" />
     </g>
-    <g v-if="dieRank === 'Apprentice'">
+    <g v-if="rank === 'Apprentice'">
       <!-- background -->
       <polygon class="apprentice-fill"
         points="50,5 76.43,13.59 92.8,36.09 92.8,63.91 76.43,86.41 50,95 23.57,86.41 7.2,63.91 7.2,36.09 23.57,13.59" />
@@ -51,7 +50,7 @@ defineProps({
       <!-- hint cover -->
       <circle class="apprentice-fill" cx="50" cy="50" r="35" />
     </g>
-    <g v-if="dieRank === 'Novice'">
+    <g v-if="rank === 'Novice'">
       <!-- background -->
       <polygon class="novice-fill" points="6.7,25 50,0 93.3,25 93.3,75 50,100 6.7,75" />
       <!-- line hints -->
@@ -71,12 +70,12 @@ defineProps({
     </g>
 
     <!-- Faces -->
-    <rect v-if="rollValue === 1 || rollValue === 2" x="30" y="45" width="40" height="10" rx="3" fill="white" />
-    <rect v-if="rollValue === 2" x="45" y="30" width="10" height="40" rx="3" fill="white" />
-    <polygon v-if="rollValue === 3 || shape === 'Triangle'" points="50,33 32.68,63 67.32,63" stroke-width="6"
-      stroke="white" stroke-linejoin="round" fill="white" />
-    <rect v-if="rollValue === 4 || shape === 'Square'" x="30" y="30" width="40" height="40" rx="3" fill="white" />
-    <polygon v-if="rollValue === 5 || shape === 'Star'" points="50,30 61.76,66.18 30.98,43.82 69.02,43.82 38.24,66.18"
+    <rect v-if="value === 1 || value === 2" x="30" y="45" width="40" height="10" rx="3" fill="white" />
+    <rect v-if="value === 2" x="45" y="30" width="10" height="40" rx="3" fill="white" />
+    <polygon v-if="value === 3 || shape === 'Triangle'" points="50,33 32.68,63 67.32,63" stroke-width="6" stroke="white"
+      stroke-linejoin="round" fill="white" />
+    <rect v-if="value === 4 || shape === 'Square'" x="30" y="30" width="40" height="40" rx="3" fill="white" />
+    <polygon v-if="value === 5 || shape === 'Star'" points="50,30 61.76,66.18 30.98,43.82 69.02,43.82 38.24,66.18"
       stroke-width="6" stroke="white" stroke-linejoin="round" fill="white" />
   </svg>
 </template>

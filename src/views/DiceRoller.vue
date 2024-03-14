@@ -5,6 +5,7 @@ import { useAppStore } from '@/stores/app'
 import { type RollDisplay, type SkillCheck, type SkillStripe } from '@/composables/skill'
 import { type SkillDieRank } from '@/composables/dicePool';
 import SkillDie from '@/components/SkillDie.vue'
+import SkillProficiencySlider from '@/components/SkillProficiencySlider.vue';
 
 const RANK_OPTIONS: SkillDieRank[] = ['Novice', 'Apprentice', 'Expert', 'Master']
 const STRIPE_OPTIONS: SkillStripe[] = [0, 1, 2, 3, 4]
@@ -28,6 +29,7 @@ watch([rank, stripe], () => {
     stripe.value = 0
   }
   appStore.skill.setStripe(stripe.value)
+  console.log(rank.value, stripe.value)
 })
 
 const makeSkillCheck = () => {
@@ -38,6 +40,8 @@ const makeSkillCheck = () => {
 <template>
   <main class="DiceRoller">
     <h1>Dice Roller</h1>
+
+    <SkillProficiencySlider />
 
     <div class="skill-selector">
       <div class="input-wrapper">
@@ -68,8 +72,7 @@ const makeSkillCheck = () => {
     </div>
 
     <div class="dice-pool">
-      <SkillDie v-for="(die, index) in dicePoolDisplay" :key="index" :die-rank="die.rank" :roll-value="die.value"
-        :size="150" />
+      <SkillDie v-for="(die, index) in dicePoolDisplay" :key="index" :rank="die.rank" :value="die.value" :size="150" />
     </div>
 
     <div v-if="skillCheck" class="result-display">

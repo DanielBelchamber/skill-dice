@@ -2,7 +2,7 @@
   /* Tabletop Vibe */
   --paper_light: #f4eee4ff;
   --paper_dark: #eee3d2ff;
-  --red_accent: #7a2c00ff;
+  --accent: hsl(25, 100%, 35%);
   --wood_light: #764429ff;
   --wood_dark: #58341fff;
 
