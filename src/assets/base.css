@@ -13,6 +13,22 @@
   --novice: #616161ff;
 }
 
+.Master {
+  color: var(--master);
+}
+
+.Expert {
+  color: var(--expert);
+}
+
+.Apprentice {
+  color: var(--apprentice);
+}
+
+.Novice {
+  color: var(--novice);
+}
+
 *,
 *::before,
 *::after {

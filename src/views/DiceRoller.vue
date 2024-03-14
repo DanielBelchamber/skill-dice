@@ -2,35 +2,24 @@
 import { computed, ref, watch } from 'vue'
 
 import { useAppStore } from '@/stores/app'
-import { type RollDisplay, type SkillCheck, type SkillStripe } from '@/composables/skill'
-import { type SkillDieRank } from '@/composables/dicePool';
+import { type RollDisplay, type SkillCheck } from '@/composables/skill'
 import SkillDie from '@/components/SkillDie.vue'
 import SkillProficiencySlider from '@/components/SkillProficiencySlider.vue';
-
-const RANK_OPTIONS: SkillDieRank[] = ['Novice', 'Apprentice', 'Expert', 'Master']
-const STRIPE_OPTIONS: SkillStripe[] = [0, 1, 2, 3, 4]
+import SkillProficiency from '@/components/SkillProficiency.vue';
 
 const appStore = useAppStore()
 
-const rank = ref<SkillDieRank>('Novice')
-const stripe = ref<SkillStripe>(0)
-const challenge = ref<number>(0)
+const challenge = ref<number>(12)
 const modifier = ref<number>(0)
 const skillCheck = ref<SkillCheck | null>(null)
+
+const proficiencyDisplay = computed(() => appStore.skill.display())
+
+watch(proficiencyDisplay, () => skillCheck.value = null)
 
 const dicePoolDisplay = computed(() =>
   skillCheck.value ? skillCheck.value.display : appStore.skill.display().map((rank) => ({ rank, value: 0 } as RollDisplay))
 )
-
-watch([rank, stripe], () => {
-  skillCheck.value = null
-  appStore.skill.setRank(rank.value)
-  if (rank.value === 'Master') {
-    stripe.value = 0
-  }
-  appStore.skill.setStripe(stripe.value)
-  console.log(rank.value, stripe.value)
-})
 
 const makeSkillCheck = () => {
   skillCheck.value = appStore.skill.check(challenge.value, modifier.value)
@@ -41,21 +30,12 @@ const makeSkillCheck = () => {
   <main class="DiceRoller">
     <h1>Dice Roller</h1>
 
-    <SkillProficiencySlider />
+    <SkillProficiencySlider :proficiency="{ rank: appStore.skill.rank, stripe: appStore.skill.stripe }" />
 
     <div class="skill-selector">
       <div class="input-wrapper">
-        <label for="rank-select">Rank</label>
-        <select id="rank-select" v-model="rank">
-          <option v-for="option in RANK_OPTIONS" :key="option" :value="option">{{ option }}</option>
-        </select>
-      </div>
-
-      <div class="input-wrapper">
-        <label for="stripe-select">Stripe</label>
-        <select id="stripe-select" v-model="stripe" :disabled="rank === 'Master'">
-          <option v-for="option in STRIPE_OPTIONS" :key="option" :value="option">{{ option }}</option>
-        </select>
+        <div>Skill Proficiency</div>
+        <SkillProficiency :display="proficiencyDisplay" />
       </div>
 
       <div class="input-wrapper">
@@ -71,7 +51,7 @@ const makeSkillCheck = () => {
       <button @click="makeSkillCheck">Roll</button>
     </div>
 
-    <div class="dice-pool">
+    <div v-if="skillCheck" class="dice-pool">
       <SkillDie v-for="(die, index) in dicePoolDisplay" :key="index" :rank="die.rank" :value="die.value" :size="150" />
     </div>
 
@@ -101,7 +81,6 @@ main {
 }
 
 .skill-selector {
-  margin-top: 1rem;
   display: flex;
   align-items: center;
 }
@@ -112,9 +91,16 @@ main {
 }
 
 .input-wrapper {
+  height: 100%;
   margin: 0 1rem;
   display: flex;
   flex-direction: column;
+}
+
+.input-wrapper .skill-proficiency {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .dice-pool {

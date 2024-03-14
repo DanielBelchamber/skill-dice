@@ -1,21 +1,29 @@
 <script setup lang="ts">
-import { ref, type PropType, computed } from 'vue'
+import { ref, type PropType, computed, watch } from 'vue'
 
 import type { SkillDieRank } from '@/composables/dicePool';
 import type { SkillProficiency, SkillStripe } from '@/composables/skill';
 import SkillDie from '@/components/SkillDie.vue';
+import { useAppStore } from '@/stores/app';
 
 const RANKS: SkillDieRank[] = ['Novice', 'Apprentice', 'Expert', 'Master']
 
 const props = defineProps({
   proficiency: {
     type: Object as PropType<SkillProficiency>,
-    default: () => ({ rank: 'Apprentice', stripe: 1 })
+    required: true
   }
 })
 
 const rank = ref(props.proficiency.rank)
 const stripe = ref(props.proficiency.stripe)
+
+const appStore = useAppStore();
+
+watch([rank, stripe], () => {
+  appStore.skill.setRank(rank.value)
+  appStore.skill.setStripe(stripe.value)
+})
 
 const proficiencyPercentage = computed(() => {
   const notch = RANKS.indexOf(rank.value) * 5 + stripe.value
@@ -121,21 +129,5 @@ const handleTrackMouseEvent = (e: MouseEvent) => {
   line-height: 28px;
   font-weight: 700;
   text-align: center;
-}
-
-.rank-wrapper .label.Master {
-  color: var(--master);
-}
-
-.rank-wrapper .label.Expert {
-  color: var(--expert);
-}
-
-.rank-wrapper .label.Apprentice {
-  color: var(--apprentice);
-}
-
-.rank-wrapper .label.Novice {
-  color: var(--novice);
 }
 </style>
