@@ -3,9 +3,10 @@ import { computed, onMounted, ref, watch } from 'vue'
 
 import { useAppStore } from '@/stores/app'
 import { type RollDisplay, type SkillCheck } from '@/composables/skill'
-import SkillDie from '@/components/SkillDie.vue'
 import SkillProficiencySlider from '@/components/SkillProficiencySlider.vue';
 import SkillProficiency from '@/components/SkillProficiency.vue';
+import SkillDie from '@/components/SkillDie.vue'
+import DieFace from '@/components/DieFace.vue';
 
 const appStore = useAppStore()
 
@@ -99,6 +100,9 @@ const makeSkillCheck = () => {
         <span>{{ totalDisplaySetup }}</span>
         <span :class="skillCheck.success ? 'success' : 'failure'">{{ skillCheck.total }}</span>
       </div>
+      <div class="shapes">
+        <DieFace v-for="(shape, index) in skillCheck.shapes" :key="index" :size="30" :shape="shape" color="white" />
+      </div>
     </div>
   </main>
 </template>
@@ -191,12 +195,21 @@ main {
 
 .dice-tray .calculated-total {
   position: absolute;
-  width: 250px;
+  width: 220px;
   bottom: -50px;
   left: 0;
   font-size: 1.5rem;
   line-height: 50px;
   font-weight: 500;
   color: white;
+}
+
+.dice-tray .shapes {
+  position: absolute;
+  bottom: -40px;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>
