@@ -13,6 +13,10 @@
   --novice: #616161ff;
 }
 
+.accent {
+  color: var(--accent);
+}
+
 .Master {
   color: var(--master);
 }

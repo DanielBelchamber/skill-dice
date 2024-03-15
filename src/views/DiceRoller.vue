@@ -14,20 +14,30 @@ const challenge = ref<number>(12)
 const skillCheck = ref<SkillCheck | null>(null)
 
 const proficiencyDisplay = computed(() => appStore.skill.display())
+const totalString = computed(() => {
+  if (skillCheck.value) {
+    const { total, modifier } = skillCheck.value
+    const rawRoll = total - modifier
+    const modifierDisplay = modifier > 0 ? `+ ${modifier} ` : `- ${Math.abs(modifier)} `
+    return modifier ? `Total: ${rawRoll} ${modifierDisplay} = ${total}` : `Total: ${total}`
+  }
+  return null
+})
 
 const logSkillCheckData = () => {
   const { rank, stripe } = appStore.skill
   const modifierDisplay = modifier.value > 0 ? `+${modifier.value} SM` : `${modifier.value} SM`
   const challengeDisplay = `vs ${challenge.value} CR`
 
-  if (modifier.value) {
-    console.log(rank, stripe, modifierDisplay, challengeDisplay)
-  } else {
-    console.log(rank, stripe, challengeDisplay)
-  }
 
+  const proficiencyString = `${rank} ${stripe}`
   const successChance = appStore.skill.calculateProbabilities(challenge.value, modifier.value)
-  console.log(successChance)
+  const successChanceDisplay = `${Math.floor(100 * successChance)}%`
+  if (modifier.value) {
+    console.log(`${proficiencyString} ${modifierDisplay} ${challengeDisplay} (${successChanceDisplay})`)
+  } else {
+    console.log(`${proficiencyString} ${challengeDisplay} (${successChanceDisplay})`)
+  }
 }
 
 onMounted(() => {
@@ -56,7 +66,7 @@ const makeSkillCheck = () => {
 
     <div class="skill-selector">
       <div class="input-wrapper">
-        <div>Skill Proficiency</div>
+        <div class="proficiency-label accent">Skill Proficiency</div>
         <SkillProficiency :display="proficiencyDisplay" />
       </div>
 
@@ -73,18 +83,22 @@ const makeSkillCheck = () => {
       <button @click="makeSkillCheck">Roll</button>
     </div>
 
-    <div v-if="skillCheck" class="dice-pool">
-      <SkillDie v-for="(die, index) in dicePoolDisplay" :key="index" :rank="die.rank" :value="die.value" :size="150" />
+    <div v-if="skillCheck" class="dice-tray">
+      <div class="binary-outcome">{{ skillCheck.success ? "Success!" : "Failure" }}</div>
+
+      <SkillDie v-for="(die, index) in dicePoolDisplay" :key="index" :rank="die.rank" :value="die.value" :size="100" />
+
+      <div class="calculated-total">{{ totalString }}</div>
     </div>
 
-    <div v-if="skillCheck" class="result-display">
+    <!-- <div v-if="skillCheck" class="result-display">
       <h2>{{ skillCheck.success ? "Success!" : "Failure" }}</h2>
       <h3>Total: {{ skillCheck.total }}</h3>
       <h3 class="shapes">
         <span class="label">Shapes:</span>
         <SkillDie v-for="(shape, index) in skillCheck.shapes" :key="index" :shape="shape" :size="50" />
       </h3>
-    </div>
+    </div> -->
   </main>
 </template>
 
@@ -119,44 +133,54 @@ main {
   flex-direction: column;
 }
 
-.input-wrapper .skill-proficiency {
+.input-wrapper .proficiency-label {
+  font-weight: 600;
+}
+
+.input-wrapper .SkillProficiency {
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.dice-pool {
+.dice-tray {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
+  width: calc(100px * 3 + 20px * 4 + 50px * 2);
+  gap: 20px;
   margin: 2rem 0;
+  border: 50px solid var(--wood_dark);
+  padding: 20px;
+  background-color: var(--wood_light);
 }
 
-.result-display {
-  margin: 0 auto;
-  border-radius: 0.25rem;
-  padding: 0 1rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--wood_dark);
+.dice-tray .SkillDie {
+  border-radius: 10px;
+  background-color: var(--accent);
+}
+
+.dice-tray .binary-outcome {
+  position: absolute;
+  top: -50px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2rem;
+  line-height: 50px;
+  font-weight: 700;
   color: white;
 }
 
-.shapes {
-  display: flex;
-  align-items: center;
-  height: 54px;
-  border-radius: 3px;
-}
-
-.shapes .SkillDie {
-  margin: -10px;
-}
-
-.shapes .label {
-  margin-right: 0.5rem;
+.dice-tray .calculated-total {
+  position: absolute;
+  width: 250px;
+  bottom: -50px;
+  left: 0;
+  font-size: 1.5rem;
+  line-height: 50px;
+  font-weight: 500;
+  color: white;
 }
 </style>
