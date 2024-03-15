@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 
 import { useAppStore } from '@/stores/app'
 import { type RollDisplay, type SkillCheck } from '@/composables/skill'
@@ -9,13 +9,34 @@ import SkillProficiency from '@/components/SkillProficiency.vue';
 
 const appStore = useAppStore()
 
-const challenge = ref<number>(12)
 const modifier = ref<number>(0)
+const challenge = ref<number>(12)
 const skillCheck = ref<SkillCheck | null>(null)
 
 const proficiencyDisplay = computed(() => appStore.skill.display())
 
-watch(proficiencyDisplay, () => skillCheck.value = null)
+const logSkillCheckData = () => {
+  const { rank, stripe } = appStore.skill
+  const modifierDisplay = modifier.value > 0 ? `+${modifier.value} SM` : `${modifier.value} SM`
+  const challengeDisplay = `vs ${challenge.value} CR`
+
+  if (modifier.value) {
+    console.log(rank, stripe, modifierDisplay, challengeDisplay)
+  } else {
+    console.log(rank, stripe, challengeDisplay)
+  }
+
+  appStore.skill.calculateProbabilities()
+}
+
+onMounted(() => {
+  logSkillCheckData()
+})
+
+watch([proficiencyDisplay, modifier, challenge], () => {
+  skillCheck.value = null
+  logSkillCheckData()
+})
 
 const dicePoolDisplay = computed(() =>
   skillCheck.value ? skillCheck.value.display : appStore.skill.display().map((rank) => ({ rank, value: 0 } as RollDisplay))
