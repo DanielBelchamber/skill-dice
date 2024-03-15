@@ -23,9 +23,8 @@ const VALUE_PYRAMID = [
   5, 4, 4, 3, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0
 ] as SkillDieValue[]
 
-type DieProbabilities = Record<string, number>
-
-type RollProbabilities = Record<string, number>
+type NamedProbabilityReference = Record<string, number>
+type NumberedProbabilityReference = Record<number, number>
 
 type SkillDie = {
   rank: SkillDieRank
@@ -94,8 +93,8 @@ const rollDie = (type: SkillDieRank, faceCount: number): SkillDieRoll => {
   }
 }
 
-const mergeProbabilities = (reference: RollProbabilities): RollProbabilities => {
-  const mergedReference: RollProbabilities = {}
+const mergeProbabilities = (reference: NamedProbabilityReference): NamedProbabilityReference => {
+  const mergedReference: NamedProbabilityReference = {}
   for (const key in reference) {
     const probability = reference[key]
     const newKey = key.split('=>').sort().reverse().join('=>')
@@ -109,14 +108,14 @@ const mergeProbabilities = (reference: RollProbabilities): RollProbabilities => 
 }
 
 const calculateRollProbabilities = (
-  dieList: DieProbabilities[],
-  reference: RollProbabilities
-): RollProbabilities => {
+  dieList: NamedProbabilityReference[],
+  reference: NamedProbabilityReference
+): NamedProbabilityReference => {
   const die = dieList[0]
   const remaining = dieList.slice(1)
 
   // build new reference
-  const newReference: RollProbabilities = {}
+  const newReference: NamedProbabilityReference = {}
   if (Object.keys(reference).length === 0) {
     for (const dieKey in die) {
       newReference[dieKey] = die[dieKey]
@@ -138,8 +137,25 @@ const calculateRollProbabilities = (
   }
 }
 
-const calculateTotalProbabilities = (rollProbabilities: RollProbabilities): number => {
-  return 0
+const calculateTotalProbabilities = (
+  rollProbabilities: NamedProbabilityReference
+): NumberedProbabilityReference => {
+  const totalProbabilities: NumberedProbabilityReference = {}
+  for (const key in rollProbabilities) {
+    const probability = rollProbabilities[key]
+    const total = key.split('=>').reduce((sum, value) => sum + parseInt(value), 0)
+    if (totalProbabilities[total]) {
+      totalProbabilities[total] += probability
+    } else {
+      totalProbabilities[total] = probability
+    }
+  }
+  return totalProbabilities
+}
+
+type OutcomeProbabilities = {
+  rollProbabilities: NamedProbabilityReference
+  totalProbabilities: NumberedProbabilityReference
 }
 
 type SkillDicePool = {
@@ -147,7 +163,8 @@ type SkillDicePool = {
   display: () => SkillDieRank[]
   /** roll dice pool to get the rank, value, and shape (if any) for each die */
   roll: () => SkillDieRoll[]
-  calculateProbabilities: () => void
+  /** calculate the probabilities for each roll outcome */
+  calculateProbabilities: () => OutcomeProbabilities
 }
 
 const useDicePool = (dice: SkillDie[]): SkillDicePool => {
@@ -158,7 +175,7 @@ const useDicePool = (dice: SkillDie[]): SkillDicePool => {
   const calculateProbabilities = () => {
     const dieOutcomes = dice.map((d) => {
       const values = VALUE_PYRAMID.slice(0, d.faceCount)
-      const probabilities: DieProbabilities = {}
+      const probabilities: NamedProbabilityReference = {}
       for (let i = 0; i <= 5; i++) {
         const count = values.filter((v) => v === i).length
         if (count > 0) {
@@ -168,11 +185,13 @@ const useDicePool = (dice: SkillDie[]): SkillDicePool => {
       return probabilities
     })
 
-    const empty: RollProbabilities = {}
-    const rollProbabilities = calculateRollProbabilities(dieOutcomes, empty)
-    console.log(rollProbabilities)
+    const rollProbabilities = calculateRollProbabilities(dieOutcomes, {})
     const totalProbabilities = calculateTotalProbabilities(rollProbabilities)
-    console.log(totalProbabilities)
+
+    return {
+      rollProbabilities,
+      totalProbabilities
+    }
   }
 
   return { display, roll, calculateProbabilities }

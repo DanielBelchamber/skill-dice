@@ -26,7 +26,8 @@ const logSkillCheckData = () => {
     console.log(rank, stripe, challengeDisplay)
   }
 
-  appStore.skill.calculateProbabilities()
+  const successChance = appStore.skill.calculateProbabilities(challenge.value, modifier.value)
+  console.log(successChance)
 }
 
 onMounted(() => {

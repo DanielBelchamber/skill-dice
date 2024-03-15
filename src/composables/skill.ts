@@ -64,7 +64,7 @@ type Skill = {
   display: () => SkillDieRank[]
   roll: () => SkillRoll
   check: (challenge: number, modifier?: number) => SkillCheck
-  calculateProbabilities: () => void
+  calculateProbabilities: (challenge: number, modifier?: number) => number
 }
 
 const useSkill = (): Skill => {
@@ -111,8 +111,22 @@ const useSkill = (): Skill => {
     }
   }
 
-  const calculateProbabilities = () => {
-    pool.value.calculateProbabilities()
+  const calculateProbabilities = (challenge: number, modifier = 0) => {
+    const target = challenge - modifier
+    const outcomes = pool.value.calculateProbabilities()
+    // console.log(outcomes)
+
+    const possibleTotals = Object.keys(outcomes.totalProbabilities).map((key) => parseInt(key))
+    const targetIndex = possibleTotals.indexOf(target)
+    // console.log(possibleTotals)
+
+    if (targetIndex !== -1) {
+      return possibleTotals
+        .slice(targetIndex)
+        .reduce((sum, total) => sum + outcomes.totalProbabilities[total], 0)
+    } else {
+      return possibleTotals[0] > target ? 1 : 0
+    }
   }
 
   return {
