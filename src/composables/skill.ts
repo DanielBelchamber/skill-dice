@@ -114,18 +114,20 @@ const useSkill = (): Skill => {
   const calculateProbabilities = (challenge: number, modifier = 0) => {
     const target = challenge - modifier
     const outcomes = pool.value.calculateProbabilities()
-    // console.log(outcomes)
 
     const possibleTotals = Object.keys(outcomes.totalProbabilities).map((key) => parseInt(key))
+    const lowestPossible = possibleTotals[0]
+    const highestPossible = possibleTotals[possibleTotals.length - 1]
     const targetIndex = possibleTotals.indexOf(target)
-    // console.log(possibleTotals)
 
-    if (targetIndex !== -1) {
+    if (lowestPossible >= target) {
+      return 1
+    } else if (highestPossible < target) {
+      return 0
+    } else {
       return possibleTotals
         .slice(targetIndex)
         .reduce((sum, total) => sum + outcomes.totalProbabilities[total], 0)
-    } else {
-      return possibleTotals[0] > target ? 1 : 0
     }
   }
 

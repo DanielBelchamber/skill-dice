@@ -11,42 +11,44 @@ const appStore = useAppStore()
 
 const modifier = ref<number>(0)
 const challenge = ref<number>(12)
+const successChanceDisplay = ref<string>("")
 const skillCheck = ref<SkillCheck | null>(null)
 
 const proficiencyDisplay = computed(() => appStore.skill.display())
-const totalString = computed(() => {
+const totalDisplaySetup = computed(() => {
   if (skillCheck.value) {
     const { total, modifier } = skillCheck.value
     const rawRoll = total - modifier
     const modifierDisplay = modifier > 0 ? `+ ${modifier} ` : `- ${Math.abs(modifier)} `
-    return modifier ? `Total: ${rawRoll} ${modifierDisplay} = ${total}` : `Total: ${total}`
+    return modifier ? `Total: ${rawRoll} ${modifierDisplay} = ` : `Total: `
   }
   return null
 })
 
-const logSkillCheckData = () => {
-  const { rank, stripe } = appStore.skill
-  const modifierDisplay = modifier.value > 0 ? `+${modifier.value} SM` : `${modifier.value} SM`
-  const challengeDisplay = `vs ${challenge.value} CR`
-
-
-  const proficiencyString = `${rank} ${stripe}`
+const displaySkillCheckData = () => {
   const successChance = appStore.skill.calculateProbabilities(challenge.value, modifier.value)
-  const successChanceDisplay = `${Math.floor(100 * successChance)}%`
-  if (modifier.value) {
-    console.log(`${proficiencyString} ${modifierDisplay} ${challengeDisplay} (${successChanceDisplay})`)
+  let display
+  if (successChance === 1) {
+    display = "Guaranteed"
+  } else if (successChance === 0) {
+    display = "Impossible"
+  } else if (successChance >= 0.995) {
+    display = "> 99%"
+  } else if (successChance < 0.01) {
+    display = "< 1%"
   } else {
-    console.log(`${proficiencyString} ${challengeDisplay} (${successChanceDisplay})`)
+    display = `${Math.floor(100 * successChance)}%`
   }
+  successChanceDisplay.value = `Success Chance: ${display}`
 }
 
 onMounted(() => {
-  logSkillCheckData()
+  displaySkillCheckData()
 })
 
 watch([proficiencyDisplay, modifier, challenge], () => {
   skillCheck.value = null
-  logSkillCheckData()
+  displaySkillCheckData()
 })
 
 const dicePoolDisplay = computed(() =>
@@ -83,22 +85,21 @@ const makeSkillCheck = () => {
       <button @click="makeSkillCheck">Roll</button>
     </div>
 
+    <div class="success-chance">{{ successChanceDisplay }}</div>
+
     <div v-if="skillCheck" class="dice-tray">
-      <div class="binary-outcome">{{ skillCheck.success ? "Success!" : "Failure" }}</div>
+      <div class="binary-outcome">
+        <span v-if="skillCheck.success" class="success">Success!</span>
+        <span v-else class="failure">Failure</span>
+      </div>
 
       <SkillDie v-for="(die, index) in dicePoolDisplay" :key="index" :rank="die.rank" :value="die.value" :size="100" />
 
-      <div class="calculated-total">{{ totalString }}</div>
+      <div class="calculated-total">
+        <span>{{ totalDisplaySetup }}</span>
+        <span :class="skillCheck.success ? 'success' : 'failure'">{{ skillCheck.total }}</span>
+      </div>
     </div>
-
-    <!-- <div v-if="skillCheck" class="result-display">
-      <h2>{{ skillCheck.success ? "Success!" : "Failure" }}</h2>
-      <h3>Total: {{ skillCheck.total }}</h3>
-      <h3 class="shapes">
-        <span class="label">Shapes:</span>
-        <SkillDie v-for="(shape, index) in skillCheck.shapes" :key="index" :shape="shape" :size="50" />
-      </h3>
-    </div> -->
   </main>
 </template>
 
@@ -134,13 +135,19 @@ main {
 }
 
 .input-wrapper .proficiency-label {
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .input-wrapper .SkillProficiency {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.success-chance {
+  margin: 1rem 0;
+  font-size: 1.5rem;
+  font-weight: 500;
 }
 
 .dice-tray {
@@ -151,7 +158,6 @@ main {
   justify-content: center;
   width: calc(100px * 3 + 20px * 4 + 50px * 2);
   gap: 20px;
-  margin: 2rem 0;
   border: 50px solid var(--wood_dark);
   padding: 20px;
   background-color: var(--wood_light);
@@ -171,6 +177,16 @@ main {
   line-height: 50px;
   font-weight: 700;
   color: white;
+}
+
+.dice-tray .success {
+  font-weight: 700;
+  color: gold;
+}
+
+.dice-tray .failure {
+  font-weight: 700;
+  color: silver;
 }
 
 .dice-tray .calculated-total {
