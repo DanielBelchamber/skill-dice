@@ -51,7 +51,7 @@ const handleTrackMouseEvent = (e: MouseEvent) => {
 </script>
 
 <template>
-  <div class="SillProficiencySlider">
+  <div class="SkillProficiencySlider">
     <div class="track" @mousedown.stop="handleTrackMouseEvent">
       <div class="fill" :style="{ width: `${proficiencyPercentage}%` }"></div>
       <div class="notch" v-for="i in 16" :key="i" :style="{ left: `calc(${100 * (i - 1) / 15}% - 0.5px)` }"
@@ -69,7 +69,7 @@ const handleTrackMouseEvent = (e: MouseEvent) => {
 </template>
 
 <style scoped>
-.SillProficiencySlider {
+.SkillProficiencySlider {
   width: 100%;
   max-width: 800px;
   padding: 50px;

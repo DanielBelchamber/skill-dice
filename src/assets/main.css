@@ -5,6 +5,8 @@
 #app {
   position: relative;
   height: 100%;
+  width: 100%;
+  overflow: auto;
   font-family: 'Lexend', sans-serif;
   background-color: var(--paper_dark);
 }

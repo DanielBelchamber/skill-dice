@@ -64,7 +64,7 @@ type Skill = {
   display: () => SkillDieRank[]
   roll: () => SkillRoll
   check: (challenge: number, modifier?: number) => SkillCheck
-  calculateProbabilities: (challenge: number, modifier?: number) => number
+  calculateSuccessProbability: (challenge: number, modifier?: number) => number
 }
 
 const useSkill = (): Skill => {
@@ -111,7 +111,7 @@ const useSkill = (): Skill => {
     }
   }
 
-  const calculateProbabilities = (challenge: number, modifier = 0) => {
+  const calculateSuccessProbability = (challenge: number, modifier = 0) => {
     const target = challenge - modifier
     const outcomes = pool.value.calculateProbabilities()
 
@@ -139,7 +139,7 @@ const useSkill = (): Skill => {
     display,
     roll,
     check,
-    calculateProbabilities
+    calculateSuccessProbability
   }
 }
 

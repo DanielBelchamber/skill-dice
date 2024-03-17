@@ -31,11 +31,15 @@ const totalDisplaySetup = computed(() => {
 </script>
 
 <template>
-  <div class="dice-tray">
-    <!-- header -->
+  <div class="DiceTray">
+    <!-- headers -->
     <div v-if="skillCheck" class="binary-outcome">
       <span v-if="skillCheck.success" class="success">Success!</span>
       <span v-else class="failure">Failure</span>
+    </div>
+
+    <div v-if="skillCheck" class="shapes">
+      <DieFace v-for="(shape, index) in skillCheck.shapes" :key="index" :size="30" :shape="shape" color="white" />
     </div>
 
     <!-- rolling area -->
@@ -45,20 +49,18 @@ const totalDisplaySetup = computed(() => {
       </div>
     </div>
 
-    <!-- two footers -->
+    <!-- footers -->
     <div v-if="skillCheck" class="calculated-total">
       <span>{{ totalDisplaySetup }}</span>
       <span :class="skillCheck.success ? 'success' : 'failure'">{{ skillCheck.total }}</span>
     </div>
 
-    <div v-if="skillCheck" class="shapes">
-      <DieFace v-for="(shape, index) in skillCheck.shapes" :key="index" :size="30" :shape="shape" color="white" />
-    </div>
+    <div v-if="skillCheck" class="target">CR {{ skillCheck.challenge }}</div>
   </div>
 </template>
 
 <style scoped>
-.dice-tray {
+.DiceTray {
   position: relative;
   width: calc(100px * 3 + 20px * 4 + 50px * 2);
   border: 50px solid var(--wood_dark);
@@ -66,7 +68,42 @@ const totalDisplaySetup = computed(() => {
   background-color: var(--wood_light);
 }
 
-.dice-tray .dice-slots {
+/* header - binary outcome */
+
+.binary-outcome {
+  position: absolute;
+  top: -50px;
+  left: 0;
+  font-size: 2rem;
+  line-height: 50px;
+  font-weight: 700;
+  color: white;
+}
+
+.success {
+  font-weight: 700;
+  color: gold;
+}
+
+.failure {
+  font-weight: 700;
+  color: silver;
+}
+
+/* header - shapes */
+
+.shapes {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* slots */
+
+.dice-slots {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -86,44 +123,28 @@ const totalDisplaySetup = computed(() => {
   background-blend-mode: soft-light;
 }
 
-.dice-tray .binary-outcome {
-  position: absolute;
-  top: -50px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 2rem;
-  line-height: 50px;
-  font-weight: 700;
-  color: white;
-}
+/* footer - total */
 
-.dice-tray .success {
-  font-weight: 700;
-  color: gold;
-}
-
-.dice-tray .failure {
-  font-weight: 700;
-  color: silver;
-}
-
-.dice-tray .calculated-total {
+.calculated-total {
   position: absolute;
   width: 220px;
   bottom: -50px;
   left: 0;
-  font-size: 1.5rem;
   line-height: 50px;
-  font-weight: 500;
+  font-size: 1.5rem;
+  font-weight: 400;
   color: white;
 }
 
-.dice-tray .shapes {
+/* footer - target */
+
+.target {
   position: absolute;
-  bottom: -40px;
+  bottom: -50px;
   right: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  line-height: 50px;
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: white;
 }
 </style>

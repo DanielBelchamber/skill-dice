@@ -14,32 +14,32 @@ const challenge = ref<number>(12)
 const successChanceDisplay = ref<string>("")
 const skillCheck = ref<SkillCheck | null>(null)
 
-const proficiencyDisplay = computed(() => appStore.skill.display())
+const skillProficiency = computed(() => appStore.skill.display())
 
-const displaySkillCheckData = () => {
-  const successChance = appStore.skill.calculateProbabilities(challenge.value, modifier.value)
+const calculateSuccessChance = () => {
+  const probability = appStore.skill.calculateSuccessProbability(challenge.value, modifier.value)
   let display
-  if (successChance === 1) {
+  if (probability === 1) {
     display = "Guaranteed"
-  } else if (successChance === 0) {
+  } else if (probability === 0) {
     display = "Impossible"
-  } else if (successChance >= 0.995) {
+  } else if (probability >= 0.995) {
     display = "> 99%"
-  } else if (successChance < 0.01) {
+  } else if (probability < 0.01) {
     display = "< 1%"
   } else {
-    display = `${Math.floor(100 * successChance)}%`
+    display = `${Math.floor(100 * probability)}%`
   }
-  successChanceDisplay.value = `Success Chance: ${display}`
+  successChanceDisplay.value = display
 }
 
 onMounted(() => {
-  displaySkillCheckData()
+  calculateSuccessChance()
 })
 
-watch([proficiencyDisplay, modifier, challenge], () => {
+watch([skillProficiency, modifier, challenge], () => {
   skillCheck.value = null
-  displaySkillCheckData()
+  calculateSuccessChance()
 })
 
 const makeSkillCheck = () => {
@@ -49,57 +49,68 @@ const makeSkillCheck = () => {
 
 <template>
   <main class="DiceRoller">
-    <h1>Dice Roller</h1>
+    <h1 class="page-title">Dice Roller</h1>
 
-    <SkillProficiencySlider :proficiency="{ rank: appStore.skill.rank, stripe: appStore.skill.stripe }" />
+    <!-- Challenge Rating (CR) -->
+    <div class="section-label">Challenge Rating (CR)</div>
 
     <div class="skill-selector">
       <div class="input-wrapper">
-        <div class="proficiency-label accent">Skill Proficiency</div>
-        <SkillProficiency :display="proficiencyDisplay" />
-      </div>
-
-      <div class="input-wrapper">
-        <label for="modifier-input">Modifier</label>
-        <input id="modifier-input" type="number" v-model="modifier" :min="-5" :max="5" />
-      </div>
-
-      <div class="input-wrapper">
-        <label for="challenge-input">Challenge</label>
+        <label for="challenge-input">Challenge Rating (CR)</label>
         <input id="challenge-input" type="number" v-model="challenge" :min="1" :max="30" />
       </div>
-
-      <button @click="makeSkillCheck">Roll</button>
     </div>
 
-    <div class="success-chance">{{ successChanceDisplay }}</div>
+    <!-- Skill Proficiency -->
+    <div class="section-label">Skill Proficiency</div>
 
+    <SkillProficiencySlider :proficiency="{ rank: appStore.skill.rank, stripe: appStore.skill.stripe }" />
+
+    <!-- Situation Modifier (SM) -->
+    <div class="section-label">Situation Modifier (SM)</div>
+
+    <div class="skill-selector">
+      <div class="input-wrapper">
+        <label for="modifier-input">Situation Modifier (SM)</label>
+        <input id="modifier-input" type="number" v-model="modifier" :min="-5" :max="5" />
+      </div>
+    </div>
+
+    <!-- Roll Summary -->
+    <div class="roll-summary">
+      <SkillProficiency :display="skillProficiency" />
+      <span v-if="modifier">{{ modifier > 0 ? '+' : '' }}{{ modifier }} SM&nbsp;</span>
+      <span>vs CR {{ challenge }}</span>
+      <span>: {{ successChanceDisplay }}</span>
+      <button class="roll" @click="makeSkillCheck">Roll</button>
+    </div>
+
+    <!-- Dice Tray -->
     <DiceTray :skillCheck="skillCheck" />
   </main>
 </template>
 
 <style scoped>
-main {
-  width: 100%;
-  height: 100%;
+.DiceRoller {
+  max-width: calc(2 * 1rem + 800px);
+  margin: 0 auto;
+  padding: 1rem;
 }
 
-.DiceRoller {
-  margin: 0 auto;
-  padding-top: 1rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.page-title {
+  text-align: center;
+}
+
+.section-label {
+  width: 100%;
+  margin: 1rem 0;
+  font-size: 1.25rem;
+  font-weight: 700;
 }
 
 .skill-selector {
   display: flex;
   align-items: center;
-}
-
-.skill-selector button {
-  align-self: flex-end;
-  margin-left: 1rem;
 }
 
 .input-wrapper {
@@ -119,9 +130,24 @@ main {
   justify-content: center;
 }
 
-.success-chance {
+.roll-summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin: 1rem 0;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 500;
+}
+
+.roll-summary .SkillProficiency {
+  margin-right: 0.5rem;
+}
+
+.roll-summary .roll {
+  margin-left: 1rem;
+}
+
+.DiceRoller .DiceTray {
+  margin: 0 auto;
 }
 </style>
