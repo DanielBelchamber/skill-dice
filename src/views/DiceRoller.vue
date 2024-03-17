@@ -51,37 +51,35 @@ const makeSkillCheck = () => {
   <main class="DiceRoller">
     <h1 class="page-title">Dice Roller</h1>
 
-    <!-- Challenge Rating (CR) -->
-    <div class="section-label">Challenge Rating (CR)</div>
-
-    <div class="skill-selector">
-      <div class="input-wrapper">
-        <label for="challenge-input">Challenge Rating (CR)</label>
+    <!-- Scenario -->
+    <div class="scenario-specification">
+      <div class="column">
+        <div class="section-label">Challenge Rating (CR)</div>
         <input id="challenge-input" type="number" v-model="challenge" :min="1" :max="30" />
+      </div>
+
+      <div class="column">
+        <div class="section-label">Situation Modifier (SM)</div>
+        <input id="modifier-input" type="number" v-model="modifier" :min="-5" :max="5" />
       </div>
     </div>
 
     <!-- Skill Proficiency -->
     <div class="section-label">Skill Proficiency</div>
-
     <SkillProficiencySlider :proficiency="{ rank: appStore.skill.rank, stripe: appStore.skill.stripe }" />
 
-    <!-- Situation Modifier (SM) -->
-    <div class="section-label">Situation Modifier (SM)</div>
-
-    <div class="skill-selector">
-      <div class="input-wrapper">
-        <label for="modifier-input">Situation Modifier (SM)</label>
-        <input id="modifier-input" type="number" v-model="modifier" :min="-5" :max="5" />
-      </div>
-    </div>
-
     <!-- Roll Summary -->
+    <div class="section-label center">Skill Check</div>
+
     <div class="roll-summary">
       <SkillProficiency :display="skillProficiency" />
       <span v-if="modifier">{{ modifier > 0 ? '+' : '' }}{{ modifier }} SM&nbsp;</span>
       <span>vs CR {{ challenge }}</span>
-      <span>: {{ successChanceDisplay }}</span>
+    </div>
+    <div class="roll-summary">
+      <span>Success Chance: {{ successChanceDisplay }}</span>
+    </div>
+    <div class="center">
       <button class="roll" @click="makeSkillCheck">Roll</button>
     </div>
 
@@ -103,38 +101,27 @@ const makeSkillCheck = () => {
 
 .section-label {
   width: 100%;
-  margin: 1rem 0;
   font-size: 1.25rem;
   font-weight: 700;
 }
 
-.skill-selector {
-  display: flex;
-  align-items: center;
+.center {
+  text-align: center;
 }
 
-.input-wrapper {
-  height: 100%;
-  margin: 0 1rem;
+.scenario-specification {
   display: flex;
-  flex-direction: column;
 }
 
-.input-wrapper .proficiency-label {
-  font-weight: 700;
-}
-
-.input-wrapper .SkillProficiency {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.scenario-specification .column {
+  flex: 1;
+  margin-bottom: 1rem;
 }
 
 .roll-summary {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 1rem 0;
   font-size: 1.25rem;
   font-weight: 500;
 }
@@ -148,6 +135,6 @@ const makeSkillCheck = () => {
 }
 
 .DiceRoller .DiceTray {
-  margin: 0 auto;
+  margin: 1rem auto 0;
 }
 </style>
