@@ -79,8 +79,8 @@ const makeSkillCheck = () => {
     <div class="roll-summary">
       <span>Success Chance: {{ successChanceDisplay }}</span>
     </div>
-    <div class="center">
-      <button class="roll" @click="makeSkillCheck">Roll</button>
+    <div class="roll-summary">
+      <button @click="makeSkillCheck">Roll</button>
     </div>
 
     <!-- Dice Tray -->
@@ -103,9 +103,6 @@ const makeSkillCheck = () => {
   width: 100%;
   font-size: 1.25rem;
   font-weight: 700;
-}
-
-.center {
   text-align: center;
 }
 
@@ -115,6 +112,10 @@ const makeSkillCheck = () => {
 
 .scenario-specification .column {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 1rem;
 }
 
@@ -128,10 +129,6 @@ const makeSkillCheck = () => {
 
 .roll-summary .SkillProficiency {
   margin-right: 0.5rem;
-}
-
-.roll-summary .roll {
-  margin-left: 1rem;
 }
 
 .DiceRoller .DiceTray {
