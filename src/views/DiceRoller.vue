@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 
 import { useAppStore } from '@/stores/app'
 import { type SkillCheck } from '@/composables/skill'
@@ -42,7 +42,9 @@ watch([skillProficiency, modifier, challenge], () => {
   calculateSuccessChance()
 })
 
-const makeSkillCheck = () => {
+const makeSkillCheck = async () => {
+  skillCheck.value = null
+  await nextTick()
   skillCheck.value = appStore.skill.check(challenge.value, modifier.value)
 }
 </script>

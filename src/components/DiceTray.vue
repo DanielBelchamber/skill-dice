@@ -33,29 +33,39 @@ const totalDisplaySetup = computed(() => {
 <template>
   <div class="DiceTray">
     <!-- headers -->
-    <div v-if="skillCheck" class="binary-outcome">
-      <span v-if="skillCheck.success" class="success">Success!</span>
-      <span v-else class="failure">Failure</span>
-    </div>
+    <Transition name="fade">
+      <div v-if="skillCheck" class="binary-outcome">
+        <span v-if="skillCheck.success" class="success">Success!</span>
+        <span v-else class="failure">Failure</span>
+      </div>
+    </Transition>
 
-    <div v-if="skillCheck" class="shapes">
-      <DieFace v-for="(shape, index) in skillCheck.shapes" :key="index" :size="30" :shape="shape" color="white" />
-    </div>
+    <Transition name="fade">
+      <div v-if="skillCheck" class="shapes">
+        <DieFace v-for="(shape, index) in skillCheck.shapes" :key="index" :size="30" :shape="shape" color="white" />
+      </div>
+    </Transition>
 
     <!-- rolling area -->
     <div class="dice-slots">
       <div v-for="(die, index) in dicePoolDisplay" :key="index" class="slot-container">
-        <SkillDie v-if="skillCheck" :rank="die.rank" :value="die.value" :size="90" />
+        <Transition name="roll">
+          <SkillDie v-if="skillCheck" :rank="die.rank" :value="die.value" :size="90" />
+        </Transition>
       </div>
     </div>
 
     <!-- footers -->
-    <div v-if="skillCheck" class="calculated-total">
-      <span>{{ totalDisplaySetup }}</span>
-      <span :class="skillCheck.success ? 'success' : 'failure'">{{ skillCheck.total }}</span>
-    </div>
+    <Transition name="fade">
+      <div v-if="skillCheck" class="calculated-total">
+        <span>{{ totalDisplaySetup }}</span>
+        <span :class="skillCheck.success ? 'success' : 'failure'">{{ skillCheck.total }}</span>
+      </div>
+    </Transition>
 
-    <div v-if="skillCheck" class="target">CR {{ skillCheck.challenge }}</div>
+    <Transition name="fade">
+      <div v-if="skillCheck" class="target">CR {{ skillCheck.challenge }}</div>
+    </Transition>
   </div>
 </template>
 
@@ -66,6 +76,40 @@ const totalDisplaySetup = computed(() => {
   border: 50px solid var(--wood_dark);
   padding: 20px;
   background-color: var(--wood_light);
+}
+
+/* fade transition */
+
+.fade-enter-active {
+  animation: fade-in 1s ease;
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+
+  30% {
+    opacity: 0;
+  }
+
+  80% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+/* roll dice */
+
+.roll-enter-from {
+  transform: rotate(180deg) scale(0.5);
+}
+
+.roll-enter-active {
+  transition: transform 0.3s ease;
 }
 
 /* header - binary outcome */
